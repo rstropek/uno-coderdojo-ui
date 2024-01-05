@@ -1,8 +1,10 @@
 import { Game, checkGameId, startGame } from './game';
+import { demoPlayerStatusMessage } from './messages';
 import './style.css';
 import { activate, getButton, getButtons, getInput, getParagraph, getParagraphs, getSpan } from './utilities';
 
 let game: Game | undefined;
+let simulation = false;
 
 // Als erstes machen wir die Elemente aus dem HTML in TypeScript verfügbar
 const buttons = {
@@ -12,6 +14,8 @@ const buttons = {
   joinConfirm: getButton('#join-game .confirm'),
   newGameConfirm: getButton('#start-game .confirm'),
   sendChatMessage: getButton('#send-chat-msg'),
+  devLayout: getButton('#dev-layout'),
+  startGameBtn: getButton('#start-game-btn'),
 };
 
 const inputs = {
@@ -27,13 +31,19 @@ const messages = {
   errors: getParagraphs('.error'),
 };
 
-const spans = {
-  gameCode: getSpan('#game-id'),
-};
-
 // Navigationsbuttons
 buttons.joinGame.addEventListener('click', () => activate('join-game'));
 buttons.newGame.addEventListener('click', () => activate('start-game'));
+buttons.devLayout.addEventListener('click', () => {
+  simulation = true;
+  game = new Game('asdfgh', 'Eva');
+  game.players = ['Eva', ...demoPlayerStatusMessage.OtherPlayers.map((p) => p.Name)];
+  game.status = 'InProgress';
+  game.refreshPlayerList();
+  game.refreshGameCode();
+  game.updateGameStatus(demoPlayerStatusMessage);
+  activate('active-game');
+});
 buttons.home.forEach((b) => b.addEventListener('click', () => activate('choose-mode')));
 
 // Join-Button
@@ -51,7 +61,7 @@ buttons.joinConfirm.addEventListener('click', async () => {
   }
 
   activate('active-game');
-  spans.gameCode.innerText = game.gameId;
+  simulation = false;
   await game.Join();
 });
 
@@ -70,12 +80,23 @@ buttons.newGameConfirm.addEventListener('click', async () => {
   }
 
   activate('active-game');
-  spans.gameCode.innerText = game.gameId;
+  simulation = false;
   await game.Join();
 });
 
+buttons.startGameBtn.addEventListener('click', async () => {
+  if (!game) { return; }
+
+  if (game.players.length < 2) {
+    alert('Es müssen mindestens 2 Spieler mitspielen');
+    return;
+  }
+
+  await game.startGame();  
+});
+
 buttons.sendChatMessage.addEventListener('click', async () => {
-  if (game) {
+  if (game && !simulation) {
     game.sendChatMessage(inputs.chatMessage.value);
   }
 });

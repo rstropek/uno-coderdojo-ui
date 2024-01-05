@@ -19,6 +19,7 @@
 
       <button id="new-game">Neues Spiel starten</button>
       <button id="join-game">Zu Spiel beitreten</button>
+      <button id="dev-layout">Spielfläche testen</button>
     </section>
 
     <section id="join-game">
@@ -65,9 +66,18 @@
     <section id="active-game">
       <div id="chat-container">
         <div id="container" class="border">
-          <div id="game-board"></div>
-          <div id="game-data">
-            <div class="header">Game Code:</div>
+          <div id="game-board">
+            <div class="start-game-btn-container">
+              <button type="button" id="start-game-btn">Spiel starten</button>
+            </div>
+            <div class="card-area hide">
+              <div id="pile" class="dashed-border"></div>
+              <div id="other-players" class="dashed-border"></div>
+              <div id="player-hand" class="dashed-border"></div>
+            </div>
+          </div>
+          <div class="game-data">
+            <div class="header">Spielecode:</div>
             <div>
               <em><span id="game-id"></span></em>
             </div>
