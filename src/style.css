@@ -48,7 +48,7 @@ form button {
   display: flex;
   flex-direction: column;
   margin-right: 10px;
-  min-width: 850px;
+  min-width: 650px;
 }
 
 #chat {
@@ -59,6 +59,9 @@ form button {
 }
 
 #history {
+  padding-left: 3px;
+  padding-top: 2px;
+  font-size: 13px;
   height: 150px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -69,7 +72,6 @@ form button {
 #history div {
   display: flex;
   flex-direction: row;
-  margin: 3px;
 }
 
 #history .sender {
