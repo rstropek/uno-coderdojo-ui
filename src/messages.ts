@@ -23,12 +23,23 @@ export interface DropCardMessage extends TypedMessage {
   Card: Card;
 }
 
+export interface StartMessage extends TypedMessage { }
+
 export interface Card {
   Type: string;
   Color: string;
 }
 
 export interface TakeFromPileMessage extends TypedMessage {
+}
+
+export interface WinnerMessage extends TypedMessage {
+  WinnerId: string;
+  WinnerName: string;
+}
+
+export function isWinnerMessage(item: WinnerMessage | any): item is WinnerMessage {
+  return (item as TypedMessage).Type === 'WinnerMessage';
 }
 
 export interface OtherPlayerStatusMessage {
@@ -55,8 +66,8 @@ export const demoPlayerStatusMessage: PlayerStatusMessage = {
     { Type: 'Nine', Color: 'Blue' },
   ],
   DiscardPileTop: { Type: 'Four', Color: 'Red' },
-  CurrentPlayerId: '4',
-  ItIsYourTurn: false,
+  CurrentPlayerId: '1',
+  ItIsYourTurn: true,
   OtherPlayers: [
     { PlayerId: '2', Name: 'Franz', NumberOfCardsInHand: 5 },
     { PlayerId: '3', Name: 'Hugo', NumberOfCardsInHand: 1 },

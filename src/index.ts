@@ -1,7 +1,7 @@
-import { Game, checkGameId, startGame } from './game';
+import { Game, checkGameId, createGame } from './game';
 import { demoPlayerStatusMessage } from './messages';
 import './style.css';
-import { activate, getButton, getButtons, getInput, getParagraph, getParagraphs, getSpan } from './utilities';
+import { activate, getButton, getButtons, getInput, getParagraph, getParagraphs } from './utilities';
 
 let game: Game | undefined;
 let simulation = false;
@@ -72,7 +72,7 @@ buttons.newGameConfirm.addEventListener('click', async () => {
     return;
   }
 
-  game = await startGame(inputs.newGameName.value);
+  game = await createGame(inputs.newGameName.value);
   if (!game) {
     alert('Es tut mir leid, ich konnte kein Spiel starten');
     activate('choose-mode');
@@ -84,15 +84,10 @@ buttons.newGameConfirm.addEventListener('click', async () => {
   await game.Join();
 });
 
-buttons.startGameBtn.addEventListener('click', async () => {
+buttons.startGameBtn.addEventListener('click', () => {
   if (!game) { return; }
 
-  if (game.players.length < 2) {
-    alert('Es müssen mindestens 2 Spieler mitspielen');
-    return;
-  }
-
-  await game.startGame();  
+  game.startGame();  
 });
 
 buttons.sendChatMessage.addEventListener('click', async () => {

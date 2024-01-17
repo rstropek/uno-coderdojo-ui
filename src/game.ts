@@ -1,10 +1,11 @@
-import { DropCardMessage, isPlayerListChanged, isPlayerStatusMessage, isPublishMessage, PlayerStatusMessage, PublishMessage, TakeFromPileMessage } from './messages';
+import JSConfetti from 'js-confetti';
+import { DropCardMessage, isPlayerListChanged, isPlayerStatusMessage, isPublishMessage, isWinnerMessage, PlayerStatusMessage, PublishMessage, StartMessage, TakeFromPileMessage, WinnerMessage } from './messages';
 import { CardToImageUrl, createElement, getDiv, getList, getSpan } from './utilities';
 
-//const PROTOCOL = 'http';
-const PROTOCOL = 'https';
-//const HOST = 'localhost:5157';
-const HOST = 'uno-backend.azurewebsites.net';
+const PROTOCOL = 'http';
+//const PROTOCOL = 'https';
+const HOST = 'localhost:5157';
+//const HOST = 'uno-backend.azurewebsites.net';
 const BASE_URL = `${PROTOCOL}://${HOST}`;
 
 const playerList = getList('#player-list');
@@ -16,10 +17,11 @@ const playerHand = getDiv('#player-hand');
 const otherPlayers = getDiv('#other-players');
 const gameData = getDiv('.game-data');
 const pile = getDiv('#pile');
+const animationContainer = getDiv('#animation-container');
 
 const CARD_PLACEHOLDER = 'https://cddataexchange.blob.core.windows.net/images/unno/game-cards.png';
 
-export async function startGame(name: string): Promise<Game | undefined> {
+export async function createGame(name: string): Promise<Game | undefined> {
   try {
     const response = await fetch(`${BASE_URL}/games`, { method: 'POST' });
     if (response.status !== 201) {
@@ -50,6 +52,8 @@ export class Game {
   players: string[] = [];
   socket: WebSocket | undefined;
   status = 'WaitingForPlayers';
+  lastStatus: PlayerStatusMessage | undefined;
+  winner: WinnerMessage | undefined;
 
   constructor(public gameId: string, public name: string) { }
 
@@ -72,6 +76,13 @@ export class Game {
         chatHistory.scrollTop = chatHistory.scrollHeight;
       } else if (isPlayerStatusMessage(ev)) {
         this.updateGameStatus(ev);
+      } else if (isWinnerMessage(ev)) {
+        this.winner = ev;
+        this.updateGameStatus(undefined);
+        const jsConfetti = new JSConfetti();
+        jsConfetti.addConfetti({
+          //emojis: ['🌈', '⚡️', '💥', '✨', '💫', '🌸']
+        });
       }
     });
     this.socket.addEventListener('open', (_) => {
@@ -80,15 +91,12 @@ export class Game {
     this.refreshGameCode();
   }
 
-  async startGame(): Promise<unknown> {
-    try {
-      const response = await fetch(`${BASE_URL}/games/${this.gameId}/start`, { method: 'POST' });
-      if (response.status !== 200) {
-        alert('Das Spiel konnte nicht gestartet werden');
-        return;
-      }
-    } catch {
-      return;
+  startGame(): void {
+    if (this.socketIsOpen) {
+      const msg: StartMessage = {
+        Type: 'StartMessage',
+      };
+      this.socket!.send(JSON.stringify(msg));
     }
   }
 
@@ -104,8 +112,8 @@ export class Game {
     gameCode.innerText = this.gameId;
   }
 
-  public updateGameStatus(status: PlayerStatusMessage) {
-    if (status.GameStatus === 'WaitingForPlayers') {
+  public updateGameStatus(status: PlayerStatusMessage | undefined) {
+    if (status && status.GameStatus === 'WaitingForPlayers') {
       return;
     }
 
@@ -114,6 +122,12 @@ export class Game {
     gameData.className = 'hide';
 
     pile.innerHTML = '';
+    playerHand.innerHTML = '';
+    otherPlayers.innerHTML = '';
+
+    if (this.winner || !status) {
+      return;
+    }
 
     const stackOfCards = createElement({ tag: 'img' }) as HTMLImageElement;
     stackOfCards.src = CARD_PLACEHOLDER;
@@ -133,12 +147,39 @@ export class Game {
     pileTopCard.src = CardToImageUrl(status.DiscardPileTop.Type, status.DiscardPileTop.Color);
     pile.appendChild(pileTopCard);
 
-    playerHand.innerHTML = '';
     for (const c of status.Hand) {
       const newCard = createElement({ tag: 'img', className: 'card' }) as HTMLImageElement;
       newCard.src = CardToImageUrl(c.Type, c.Color);
       if (status.ItIsYourTurn) {
         newCard.addEventListener('click', () => {
+          if (!this.lastStatus || this.lastStatus.DiscardPileTop.Type === c.Type || this.lastStatus!.DiscardPileTop.Color === c.Color) {
+            const fromRect = newCard.getBoundingClientRect();
+            const fromTop = fromRect.top - 10;
+            const fromLeft = fromRect.left - 20;
+            const toRect = pileTopCard.getBoundingClientRect();
+            const toTop = toRect.top - 5;
+            const toLeft = toRect.left - 20;
+
+            const tempCard = newCard.cloneNode(true) as HTMLImageElement; // Clone the original card
+
+            tempCard.className = "absolute animated-card";
+            tempCard.style.left = `${fromLeft}px`;
+            tempCard.style.top = `${fromTop}px`;
+            tempCard.style.height = `${newCard.height}px`;
+            tempCard.style.zIndex = "1000";
+            animationContainer.appendChild(tempCard);
+
+            const keyframes: Keyframe[] = [
+              { },
+              { transform: `translate(${toLeft - fromLeft + 30}px, ${toTop - fromTop + 45}px) scale(${toRect.height / fromRect.height})`, opacity: 0.25 }
+            ];
+
+            const animation = tempCard.animate(keyframes, { duration: 1000 });
+            animation.onfinish = () => {
+              tempCard.remove();
+            };
+          }
+
           if (this.socketIsOpen) {
             const msg: DropCardMessage = {
               Type: 'DropCard',
@@ -154,7 +195,6 @@ export class Game {
       playerHand.appendChild(newCard);
     }
 
-    otherPlayers.innerHTML = '';
     for (const p of status.OtherPlayers) {
       const player = createElement({ tag: 'div' });
       for (let i = 0; i < p.NumberOfCardsInHand; i++) {

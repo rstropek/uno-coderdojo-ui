@@ -6,95 +6,97 @@
     <title>UNO</title>
   </head>
   <body>
-    <h1>UNO</h1>
+    <div class="absolute" id="animation-container">
+      <h1>UNO</h1>
 
-    <section id="choose-mode">
-      <h2>Willkommen!</h2>
+      <section id="choose-mode">
+        <h2>Willkommen!</h2>
 
-      <p>Möchtest du...</p>
-      <ul>
-        <li>... ein neues Spiel starten, um deine Buddies zum Spielen einzuladen?</li>
-        <li>... zu einem Spiel mit einem Spielcode beitreten?</li>
-      </ul>
+        <p>Möchtest du...</p>
+        <ul>
+          <li>... ein neues Spiel starten, um deine Buddies zum Spielen einzuladen?</li>
+          <li>... zu einem Spiel mit einem Spielcode beitreten?</li>
+        </ul>
 
-      <button id="new-game">Neues Spiel starten</button>
-      <button id="join-game">Zu Spiel beitreten</button>
-      <button id="dev-layout">Spielfläche testen</button>
-    </section>
+        <button id="new-game">Neues Spiel starten</button>
+        <button id="join-game">Zu Spiel beitreten</button>
+        <button id="dev-layout">Spielfläche testen</button>
+      </section>
 
-    <section id="join-game">
-      <h2>Zu Spiel beitreten</h2>
+      <section id="join-game">
+        <h2>Zu Spiel beitreten</h2>
 
-      <p>
-        Super, wir freuen uns auf dich. Bitte gib deinen Namen und den Code des Spieles ein, zu dem du beitreten willst.
-      </p>
+        <p>
+          Super, wir freuen uns auf dich. Bitte gib deinen Namen und den Code des Spieles ein, zu dem du beitreten
+          willst.
+        </p>
 
-      <form>
-        <label for="player-name">Dein Name:</label>
-        <input id="player-name" name="player-name" type="text" />
-        <label for="game-code">Spielcode:</label>
-        <input id="game-code" name="game-code" type="text" maxlength="6" />
-        <div></div>
-        <div>
-          <button class="confirm" type="button">OK</button>
-          <button class="home" type="button">Zurück</button>
-          <p class="error hide">Bitte fülle alle Eingabefelder aus!</p>
-        </div>
-      </form>
-    </section>
+        <form>
+          <label for="player-name">Dein Name:</label>
+          <input id="player-name" name="player-name" type="text" />
+          <label for="game-code">Spielcode:</label>
+          <input id="game-code" name="game-code" type="text" maxlength="6" />
+          <div></div>
+          <div>
+            <button class="confirm" type="button">OK</button>
+            <button class="home" type="button">Zurück</button>
+            <p class="error hide">Bitte fülle alle Eingabefelder aus!</p>
+          </div>
+        </form>
+      </section>
 
-    <section id="start-game">
-      <h2>Neues Spiel starten</h2>
+      <section id="start-game">
+        <h2>Neues Spiel starten</h2>
 
-      <p>
-        Perfekt. Wir brauchen nur deinen Namen und dann zeigen wir dir den Code deines Spieles an, den du an deine
-        Freunde weitergeben kannst.
-      </p>
+        <p>
+          Perfekt. Wir brauchen nur deinen Namen und dann zeigen wir dir den Code deines Spieles an, den du an deine
+          Freunde weitergeben kannst.
+        </p>
 
-      <form>
-        <label for="player-name">Dein Name:</label>
-        <input id="player-name" name="player-name" type="text" />
-        <div></div>
-        <div>
-          <button class="confirm" type="button">OK</button>
-          <button class="home" type="button">Zurück</button>
-          <p class="error hide">Bitte fülle alle Eingabefelder aus!</p>
-        </div>
-      </form>
-    </section>
+        <form>
+          <label for="player-name">Dein Name:</label>
+          <input id="player-name" name="player-name" type="text" />
+          <div></div>
+          <div>
+            <button class="confirm" type="button">OK</button>
+            <button class="home" type="button">Zurück</button>
+            <p class="error hide">Bitte fülle alle Eingabefelder aus!</p>
+          </div>
+        </form>
+      </section>
 
-    <section id="active-game">
-      <div id="chat-container">
-        <div id="container" class="border">
-          <div id="game-board">
-            <div class="start-game-btn-container">
-              <button type="button" id="start-game-btn">Spiel starten</button>
+      <section id="active-game">
+        <div id="chat-container">
+          <div id="container" class="border">
+            <div id="game-board">
+              <div class="start-game-btn-container">
+                <button type="button" id="start-game-btn">Spiel starten</button>
+              </div>
+              <div class="card-area hide">
+                <div id="pile" class="dashed-border"></div>
+                <div id="other-players" class="dashed-border"></div>
+                <div id="player-hand" class="dashed-border"></div>
+              </div>
             </div>
-            <div class="card-area hide">
-              <div id="pile" class="dashed-border"></div>
-              <div id="other-players" class="dashed-border"></div>
-              <div id="player-hand" class="dashed-border"></div>
+            <div class="game-data">
+              <div class="header">Spielecode:</div>
+              <div>
+                <em><span id="game-id"></span></em>
+              </div>
+              <div class="header">Players:</div>
+              <ul id="player-list"></ul>
             </div>
           </div>
-          <div class="game-data">
-            <div class="header">Spielecode:</div>
-            <div>
-              <em><span id="game-id"></span></em>
+          <div id="chat" class="border">
+            <div id="history"></div>
+            <div id="chat-input">
+              <input id="chat-msg" type="text" />
+              <button id="send-chat-msg">Send</button>
             </div>
-            <div class="header">Players:</div>
-            <ul id="player-list"></ul>
           </div>
         </div>
-        <div id="chat" class="border">
-          <div id="history"></div>
-          <div id="chat-input">
-            <input id="chat-msg" type="text" />
-            <button id="send-chat-msg">Send</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
+      </section>
+    </div>
     <script type="module" src="/src/index.ts"></script>
   </body>
 </html>
